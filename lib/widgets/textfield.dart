@@ -15,8 +15,10 @@ Widget textField(
         height: 5,
       ),
       TextField(
-        controller: controller,
-        obscureText: obscureText,
+        controller:
+            controller, // El controlador para gestionar el contenido del campo de texto
+        obscureText:
+            obscureText, // Indica si el texto debe ser oculto (por ejemplo, para contraseñas)
         decoration: const InputDecoration(
           contentPadding: EdgeInsets.symmetric(
             vertical: 0,

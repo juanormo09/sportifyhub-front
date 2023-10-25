@@ -1,10 +1,25 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 import 'package:sportifyhub_front/animations/fadeanimation.dart';
+import 'package:sportifyhub_front/api/authentication_api.dart';
+import 'package:sportifyhub_front/helpers/http_response.dart';
+import 'package:sportifyhub_front/utils/alertdialog.dart';
+import 'package:sportifyhub_front/views/principal_home.dart';
 import 'package:sportifyhub_front/widgets/textfield.dart';
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final AuthenticationApi authenticationApi = AuthenticationApi();
+
+  final Logger _logger = Logger();
 
   // Controladores para los campos de entrada (username y password)
   final TextEditingController usernameController = TextEditingController();
@@ -14,22 +29,32 @@ class LoginPage extends StatelessWidget {
   Future<void> loginUser() async {
     final username = usernameController.text;
     final password = passwordController.text;
+    ProgressDialog.show(context); // Muestra un indicador de progreso
 
-    final response = await http.post(
-      Uri.parse(
-          'http://127.0.0.1:8000/api/auth/login'), // Realiza una solicitud POST a la URL de inicio de sesión
-      body: {
-        'username': username,
-        'password': password,
-      },
+    final HttpResponse response = await authenticationApi.login(
+      username: username,
+      password: password,
     );
 
-    if (response.statusCode == 201) {
-      // Registro exitoso
-      print('Login exitoso');
+    ProgressDialog.dissmiss(context); // Oculta el indicador de progreso
+
+    if (response.data != null) {
+      // Inicio de sesión exitoso, muestra información y navega a la página principal
+      _logger.i('Inicio exitoso ${response.data}');
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const PrincipalHomePage(),
+        ),
+      );
     } else {
-      // Error en el registro
-      print('Error en el registro');
+      // Error de inicio de sesión, muestra información de error en un diálogo
+      _logger.e("Error de inicio de sesión ${response.error.statusCode}");
+      _logger.e("Error de inicio de sesión ${response.error.message}");
+      _logger.e("Error de inicio de sesión ${response.error.data}");
+
+      Dialogs.alert(context,
+          title: "Error", description: response.error.message);
     }
   }
 
@@ -43,7 +68,8 @@ class LoginPage extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(
+                context); // Botón de retroceso que cierra la página de inicio de sesión
           },
           icon: const Icon(
             Icons.arrow_back_ios_new,
@@ -64,9 +90,9 @@ class LoginPage extends StatelessWidget {
                 children: <Widget>[
                   Column(
                     children: <Widget>[
-                      FadeAnimation(
+                      const FadeAnimation(
                         1,
-                        const Text(
+                        Text(
                           'Login',
                           style: TextStyle(
                             fontSize: 30,
@@ -135,7 +161,7 @@ class LoginPage extends StatelessWidget {
                                 BorderRadius.circular(50), // Borde redondeado
                           ),
                           child: const Text(
-                            'Login',
+                            'Iniciar Sesión',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 18), // Estilo del texto
@@ -144,14 +170,15 @@ class LoginPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  FadeAnimation(
+                  const FadeAnimation(
                     1.5,
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        Text('dont have an account?'),
                         Text(
-                          'Sing Up',
+                            '¿No tienes una cuenta?'), // Mensaje "¿No tienes una cuenta?"
+                        Text(
+                          'Registrate',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 18,
@@ -169,7 +196,8 @@ class LoginPage extends StatelessWidget {
                 height: MediaQuery.of(context).size.height / 3,
                 decoration: const BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage('assets/ilustracion.jpeg'),
+                    image: AssetImage(
+                        'assets/ilustracion.jpeg'), // Imagen de fondo
                     fit: BoxFit.cover,
                   ),
                 ),

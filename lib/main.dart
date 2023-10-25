@@ -42,10 +42,10 @@ class HomePage extends StatelessWidget {
               // Sección de bienvenida
               Column(
                 children: <Widget>[
-                  FadeAnimation(
+                  const FadeAnimation(
                     1,
-                    const Text(
-                      "Bienvenido",
+                    Text(
+                      "Sportify Hub",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 30,
@@ -58,7 +58,7 @@ class HomePage extends StatelessWidget {
                   FadeAnimation(
                     1.2,
                     Text(
-                      'automatic identity verification witch enables you to verify your identity',
+                      'Bienvenido',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.grey[700], // Color de texto gris
@@ -104,7 +104,7 @@ class HomePage extends StatelessWidget {
                             BorderRadius.circular(50), // Borde redondeado
                       ),
                       child: const Text(
-                        'Login',
+                        'Iniciar Sesión',
                         style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 18), // Estilo del texto
@@ -145,7 +145,7 @@ class HomePage extends StatelessWidget {
                               BorderRadius.circular(50), // Borde redondeado
                         ),
                         child: const Text(
-                          'register',
+                          'registrarse',
                           style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 18), // Estilo del texto
