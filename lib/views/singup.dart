@@ -5,7 +5,9 @@ import 'package:logger/logger.dart';
 import 'package:sportifyhub_front/animations/fadeanimation.dart';
 import 'package:sportifyhub_front/api/authentication_api.dart';
 import 'package:sportifyhub_front/helpers/http_response.dart';
+import 'package:sportifyhub_front/main.dart';
 import 'package:sportifyhub_front/utils/alertdialog.dart';
+import 'package:sportifyhub_front/views/login.dart';
 import 'package:sportifyhub_front/widgets/textfield.dart';
 import 'package:sportifyhub_front/views/principal_home.dart';
 
@@ -46,13 +48,31 @@ class _SingUpPageState extends State<SingUpPage> {
     ProgressDialog.dissmiss(context); // Oculta el indicador de progreso
 
     if (response.data != null) {
+      const mensajeExitoso = 'Registro exitoso';
       // Registro exitoso, muestra información y navega a la página principal
       _logger.i('Registro exitoso ${response.data}');
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const PrincipalHomePage(),
-        ),
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Éxito'),
+            content: const Text(mensajeExitoso),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HomePage(),
+                    ),
+                  );
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
       );
     } else {
       // Error de registro, muestra información de error en un diálogo
@@ -98,9 +118,9 @@ class _SingUpPageState extends State<SingUpPage> {
             children: <Widget>[
               Column(
                 children: <Widget>[
-                  FadeAnimation(
+                  const FadeAnimation(
                     1,
-                    const Text(
+                    Text(
                       'Sing Up',
                       style: TextStyle(
                         fontSize: 30,

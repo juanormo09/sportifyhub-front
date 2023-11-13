@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'dart:convert';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:sportifyhub_front/animations/fadeanimation.dart';
 import 'package:sportifyhub_front/api/authentication_api.dart';
 import 'package:sportifyhub_front/helpers/http_response.dart';
@@ -41,6 +43,19 @@ class _LoginPageState extends State<LoginPage> {
     if (response.data != null) {
       // Inicio de sesión exitoso, muestra información y navega a la página principal
       _logger.i('Inicio exitoso ${response.data}');
+
+      // Obtener el token de acceso
+      String accessToken = response.data['access'];
+
+      // Imprimir el token de acceso
+      print('Token de Acceso: $accessToken');
+
+      // Decode the access token
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+
+      // Access token payload
+      print('Decoded Token: $decodedToken');
+
       Navigator.push(
         context,
         MaterialPageRoute(
