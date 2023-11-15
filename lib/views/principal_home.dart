@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:sportifyhub_front/infraestructure/models/establecimiento.dart';
+import 'package:sportifyhub_front/main.dart';
 
 class PrincipalHomePage extends StatefulWidget {
   const PrincipalHomePage({super.key});
@@ -20,46 +21,63 @@ class _PrincipalHomePageState extends State<PrincipalHomePage> {
 
   Future<void> getEstablecimientos() async {
     try {
-      final response =
-          await Dio().get('http://127.0.0.1:8000/api/establecimiento/all');
+      final response = await Dio().get(
+          'https://sportybackenddjango.onrender.com/api/establecimiento/all');
 
       if (response.statusCode == 200) {
-        // Si la respuesta es una lista, mapea cada elemento a un objeto Establecimiento
         if (response.data is List) {
           List<dynamic> data = response.data;
-          establecimientos =
-              data.map((item) => Establecimiento.fromJson(item)).toList();
+          setState(() {
+            establecimientos =
+                data.map((item) => Establecimiento.fromJson(item)).toList();
+          });
         } else {
-          // Manejo de error: La respuesta no es una lista
           print('Error: La respuesta no es una lista de establecimientos');
         }
       } else {
-        // Manejo de error: La solicitud no fue exitosa
         print(
             'Error al obtener establecimientos. Código de estado: ${response.statusCode}');
       }
     } catch (e) {
-      // Manejo de error en caso de que ocurra un problema con la solicitud
       print('Error al obtener establecimientos: $e');
     }
   }
 
-  void cerrarSesion() {
+  void cerrarSesion(BuildContext context) {
     // Lógica para cerrar sesión
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomePage()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Establecimientos'),
         actions: [
-          IconButton(onPressed: cerrarSesion, icon: Icon(Icons.exit_to_app)),
+          IconButton(
+              onPressed: () => cerrarSesion(context),
+              icon: const Icon(Icons.exit_to_app)),
         ],
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (establecimientos != null && establecimientos!.isNotEmpty)
+              for (var establecimiento in establecimientos!)
+                Card(
+                  margin: const EdgeInsets.all(10.0),
+                  child: ListTile(
+                    title: Text(establecimiento.name),
+                    subtitle: Text(establecimiento.direccion),
+                    // Otras propiedades que deseas mostrar
+                  ),
+                ),
+          ],
         ),
       ),
     );

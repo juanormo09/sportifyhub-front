@@ -3,11 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'dart:convert';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:sportifyhub_front/animations/fadeanimation.dart';
 import 'package:sportifyhub_front/api/authentication_api.dart';
 import 'package:sportifyhub_front/helpers/http_response.dart';
 import 'package:sportifyhub_front/utils/alertdialog.dart';
+import 'package:sportifyhub_front/views/Administrador_page.dart';
 import 'package:sportifyhub_front/views/principal_home.dart';
 import 'package:sportifyhub_front/widgets/textfield.dart';
 
@@ -27,10 +27,10 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  // Función para iniciar sesión al presionar el botón "Login"
   Future<void> loginUser() async {
     final username = usernameController.text;
     final password = passwordController.text;
+
     ProgressDialog.show(context); // Muestra un indicador de progreso
 
     final HttpResponse response = await authenticationApi.login(
@@ -41,36 +41,57 @@ class _LoginPageState extends State<LoginPage> {
     ProgressDialog.dissmiss(context); // Oculta el indicador de progreso
 
     if (response.data != null) {
-      // Inicio de sesión exitoso, muestra información y navega a la página principal
-      _logger.i('Inicio exitoso ${response.data}');
-
-      // Obtener el token de acceso
-      String accessToken = response.data['access'];
-
-      // Imprimir el token de acceso
-      print('Token de Acceso: $accessToken');
-
-      // Decode the access token
-      Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
-
-      // Access token payload
-      print('Decoded Token: $decodedToken');
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const PrincipalHomePage(),
-        ),
-      );
+      handleSuccessfulLogin(response);
     } else {
-      // Error de inicio de sesión, muestra información de error en un diálogo
-      _logger.e("Error de inicio de sesión ${response.error.statusCode}");
-      _logger.e("Error de inicio de sesión ${response.error.message}");
-      _logger.e("Error de inicio de sesión ${response.error.data}");
-
-      Dialogs.alert(context,
-          title: "Error", description: response.error.message);
+      handleLoginError(response);
     }
+  }
+
+  void handleSuccessfulLogin(HttpResponse response) {
+    String accessToken = response.data['access'];
+    final payloadMap = decodeToken(accessToken);
+    navigateBasedOnRole(payloadMap);
+  }
+
+  Map<String, dynamic> decodeToken(String token) {
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      throw Exception('Token inválido');
+    }
+
+    final String normalized = base64Url.normalize(parts[1]);
+    final resp = utf8.decode(base64Url.decode(normalized));
+    return json.decode(resp);
+  }
+
+  void navigateBasedOnRole(Map<String, dynamic> payloadMap) {
+    if (payloadMap.containsKey('rol_title')) {
+      String rolTitle = payloadMap['rol_title'];
+      if (rolTitle == 'Administrador') {
+        navigateToPage(const AdminsitradorPage());
+      } else {
+        navigateToPage(const PrincipalHomePage());
+      }
+    } else {
+      navigateToPage(const PrincipalHomePage());
+    }
+  }
+
+  void navigateToPage(Widget page) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => page,
+      ),
+    );
+  }
+
+  void handleLoginError(HttpResponse response) {
+    _logger.e("Error de inicio de sesión ${response.error.statusCode}");
+    _logger.e("Error de inicio de sesión ${response.error.message}");
+    _logger.e("Error de inicio de sesión ${response.error.data}");
+
+    Dialogs.alert(context, title: "Error", description: response.error.message);
   }
 
   @override

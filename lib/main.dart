@@ -136,7 +136,7 @@ class HomePage extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      SingUpPage())); // Navega a la página de registro
+                                      const SingUpPage())); // Navega a la página de registro
                         },
                         color: Colors.yellow, // Color de fondo del botón
                         elevation: 5, // Sombra

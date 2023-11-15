@@ -18,7 +18,7 @@ class AuthenticationApi {
   }) async {
     try {
       final response = await _dio.post(
-        'http://127.0.0.1:8000/api/auth/register', // URL de registro.
+        'https://sportybackenddjango.onrender.com/api/auth/register', // URL de registro.
         data: {
           "username": username,
           "email": email,
@@ -61,7 +61,7 @@ class AuthenticationApi {
   }) async {
     try {
       final response = await _dio.post(
-        'http://127.0.0.1:8000/api/auth/login', // URL de inicio de sesión.
+        'https://sportybackenddjango.onrender.com/api/auth/login', // URL de inicio de sesión.
         data: {
           "username": username,
           "password": password,
